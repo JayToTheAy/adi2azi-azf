@@ -1,0 +1,14 @@
+<h1>Adi2Azi</h1>
+Turn an .adi to an azimuthally projected map of QSOs, centered on a given decimal lat/lon or maidenhead locator.
+<br><br>
+<form action="URL Goes Here" method="POST" enctype="multipart/form-data">
+<label for="adif">Select an .adi file:</label>
+<input type="file" id="adi" name="adi" accept=".adi" required/><br><br>
+<label for="lat">Maidenhead:</label>
+<input type="text" id="maidenhead" name="maidenhead" maxlength="8"/><br>
+<label for="lat">Latitude: </label>
+<input type="number" id="lat" name="lat" value="0"/><br>
+<label for="lat">Longitude:</label>
+<input type="number" id="lon" name="lon" value="0"/><br>
+<input type="submit" value="Submit">
+</form>
