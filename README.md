@@ -7,5 +7,4 @@ Issues should be reported to this repository.
 
 ## Example Map
 
-![Example Map](https://github.com/JayToTheAy/adi2azi/blob/main/example-images/W3B-map.png?raw=true](https://github.com/JayToTheAy/adi2azi-azf/blob/main/example-image/map.png?raw=true)
-
+![Example Map](https://github.com/JayToTheAy/adi2azi-azf/blob/main/example-image/map.png?raw=true)
