@@ -9,10 +9,16 @@ from PIL import Image
 
 def build_map(bytestream, origin_lat, origin_lon):
     try:
-        # read bytestream
-        data = bytestream.decode("utf-8")
-
-        qsos_raw, header = ad.read_from_string(data)
+        try:
+            # read bytestream
+            data = bytestream.decode("latin-1", "replace")
+        except Exception as e:
+            raise ValueError("Failed to decode bytestream. Got exception: " + str(e)) from e
+        # read adif data
+        try:
+            qsos_raw, header = ad.read_from_string(data)
+        except ad.AdifError as e:
+            raise ValueError("Failed to read ADIF data. Got exception: " + str(e)) from e
         qsos = pd.DataFrame(qsos_raw)
 
         lolat, lolon = qsos.apply(lambda row : ad.degrees_from_location(row['LAT']), axis=1), qsos.apply(lambda row : ad.degrees_from_location(row['LON']), axis=1)
@@ -22,7 +28,7 @@ def build_map(bytestream, origin_lat, origin_lon):
         fig, ax = plt.subplots(figsize = (15,15))
 
         ax.set_axis_off()
-        
+
         qso_geo = [Point(xy) for xy in zip(lolon, lolat)]
         qso_df = gpd.GeoDataFrame(geometry = qso_geo)
         qso_df.crs = 4326
@@ -47,6 +53,5 @@ def build_map(bytestream, origin_lat, origin_lon):
         width, height = fig.canvas.get_width_height()
         image = Image.frombytes("RGB", (width, height), buf)
         return image
-    
     except Exception as e:
-        return e
+        raise e

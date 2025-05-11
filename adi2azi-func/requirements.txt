@@ -6,7 +6,7 @@ azure-functions
 pandas
 geopandas
 adif-io
-matplotlib
+matplotlib<3.10
 geodatasets
 shapely
 pillow

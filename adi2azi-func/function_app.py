@@ -22,17 +22,23 @@ def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
             lon = maidensquare.long
         else:
             lat, lon = 0, 0
-            
+
         for input_file in req.files.values():
             filename = input_file.filename
             contents = input_file.stream.read()
             output_file = visualize.build_map(contents, lat, lon)
             print(str(input_file))
-            
+
+    except UnicodeDecodeError as e:
+        return func.HttpResponse(
+            "Failed to decode file contents. Got exception: " + str(e),
+            status_code = 400
+        )
     except Exception as exc:
         return func.HttpResponse(
-            "Failed to open file with given inputs. Got exception: " + str(exc) + '\nCheck your inputs and try again. \
-                ' + '\nReceived gridsquare: ' + str(maidenhead) + '\nReceived lat: ' + str(lat) + '\nReceived lon: ' + str(lon),
+            "Failed to open file with given inputs. Got exception: " + str(exc) + "\nof type: " + str(type(exc)) \
+                + '\nCheck your inputs and try again.' + '\nReceived gridsquare: ' + str(maidenhead) \
+                + '\nReceived lat: ' + str(lat) + '\nReceived lon: ' + str(lon),
             status_code = 400
         )
 
