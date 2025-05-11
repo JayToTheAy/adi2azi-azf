@@ -5,6 +5,7 @@ import geodatasets
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
 from PIL import Image
+import gridtools as gt
 
 
 def build_map(bytestream, origin_lat, origin_lon):
@@ -21,7 +22,7 @@ def build_map(bytestream, origin_lat, origin_lon):
             raise ValueError("Failed to read ADIF data. Got exception: " + str(e)) from e
         qsos = pd.DataFrame(qsos_raw)
 
-        lolat, lolon = qsos.apply(lambda row : ad.degrees_from_location(row['LAT']), axis=1), qsos.apply(lambda row : ad.degrees_from_location(row['LON']), axis=1)
+        lolat, lolon = qsos.apply(get_lat, axis=1), qsos.apply(get_lon, axis=1)
 
         # turn into image
         world = gpd.read_file(geodatasets.get_path("naturalearth.land"))
@@ -55,3 +56,35 @@ def build_map(bytestream, origin_lat, origin_lon):
         return image
     except Exception as e:
         raise e
+
+def get_lat(row):
+    try:
+        lat = 0
+        if row.get('LAT') is not None:
+            lat = ad.degrees_from_location(row.get('LAT'))
+        elif row.get('GRIDSQUARE') and isinstance(row.get('GRIDSQUARE'), str):
+            maidensquare = gt.Grid(row.get('GRIDSQUARE'))
+            lat = maidensquare.lat
+        return lat
+    except Exception as e:
+        raise ValueError("\n    Failed to generate lat/lon for QSO with call " + row.get('CALL')
+                         + ". For record: " + str(row)
+                         + "\nGot exception: " + str(e)
+                         + "\n Confirm that every record has either a non-empty <lat>/<lon> \
+                            or a non-empty <gridsquare>.") from e
+
+def get_lon(row):
+    try:
+        lon = 0
+        if row.get('LON') is not None:
+            lon = ad.degrees_from_location(row.get('LON'))
+        elif row.get('GRIDSQUARE') and isinstance(row.get('GRIDSQUARE'), str):
+            maidensquare = gt.Grid(row.get('GRIDSQUARE'))
+            lon = maidensquare.long
+        return lon
+    except Exception as e:
+        raise ValueError("\n    Failed to generate lat/lon for QSO with call " + row.get('CALL')
+                         + ". For record: " + str(row)
+                         + "\nGot exception: " + str(e)
+                         + "\n Confirm that every record has either a non-empty <lat>/<lon> \
+                            or a non-empty <gridsquare>.") from e

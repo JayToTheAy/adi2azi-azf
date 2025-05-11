@@ -2,6 +2,7 @@ import azure.functions as func
 import logging
 import visualize
 import gridtools as gt
+import traceback
 from io import BytesIO
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
@@ -28,7 +29,11 @@ def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
             contents = input_file.stream.read()
             output_file = visualize.build_map(contents, lat, lon)
             print(str(input_file))
-
+    except KeyError as e:
+        return func.HttpResponse(
+            "Encountered a KeyError. Traceback:\n" + traceback.format_exc() + "\nException:" + str(e),
+            status_code = 400
+        )
     except UnicodeDecodeError as e:
         return func.HttpResponse(
             "Failed to decode file contents. Got exception: " + str(e),
@@ -49,13 +54,13 @@ def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
             output_file.save(f, 'png')
             f = f.getvalue()
             return func.HttpResponse(f, mimetype='image/png')
-        
+
         else:
             return func.HttpResponse(
                 "Failed to generate an image. File contents were: " + str(output_file),
                 status_code = 400
             )
-        
+
     except Exception as e:
         return func.HttpResponse(
             "Failed to save image, got exception: " + str(e),
